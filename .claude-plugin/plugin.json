@@ -1,7 +1,7 @@
 {
   "name": "codesplain",
   "version": "0.1.0",
-  "description": "Explain AI-written code: keeps a committed why/ folder of how features work and why changes were made, with status-labeled claims and an offline, read-only checker.",
+  "description": "Explain AI-written code: keeps a committed codesplain/ folder of how features work and why changes were made, with status-labeled claims and an offline, read-only checker.",
   "author": {
     "name": "brandonmtorres",
     "url": "https://github.com/brandonmtorres"

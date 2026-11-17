@@ -3,7 +3,7 @@
 Use these ids in a claim's `facet:` field. The full catalog, with questions, sources and freshness rules, is in `docs/FACETS.md` in the codesplain repository.
 
 **Treatment values:**
-- **recorded:** write it into `why/` as claims.
+- **recorded:** write it into `codesplain/` as claims.
 - **computed (answer time):** derive it yourself when answering, read-only. Never persist it. Always state the boundary and completeness (complete / partial / unknown).
 - **external (deferred):** report `unknown` unless the user provides it.
 - **human (optional):** fill it only if a person supplies it. Never nag.
@@ -56,7 +56,7 @@ Use these ids in a claim's `facet:` field. The full catalog, with questions, sou
 | H1–H5 | Deploy, observability, runbook, incidents, cost | external (deferred); H3 runbook may be recorded |
 | I1 | Authorship (human / agent / unknown) | recorded |
 | I2 | Human review of the current revision | external (deferred) |
-| I3 | Evidence for claims | `deps` + `why/events/` |
+| I3 | Evidence for claims | `deps` + `codesplain/events/` |
 | I4 | Claim status | derived by the checker |
 | I5 | Recorded vs inferred | claim `kind` |
 | J1 | Glossary | recorded |

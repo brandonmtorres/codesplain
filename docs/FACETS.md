@@ -1,7 +1,7 @@
-# SPEC: Engineer Information Facets for the `why/` tracking layer
+# SPEC: Engineer Information Facets for the `codesplain/` tracking layer
 
 ## Goal
-Define the complete set of information ("facets") a software engineer needs to (1) get up to speed on unfamiliar code and (2) make an informed decision about it (change, fix, review, delete, extend, ship). This taxonomy becomes the note format and query surface of the product: a committed `why/` layer written by the developer's own coding agent, plus deterministic checks.
+Define the complete set of information ("facets") a software engineer needs to (1) get up to speed on unfamiliar code and (2) make an informed decision about it (change, fix, review, delete, extend, ship). This taxonomy becomes the note format and query surface of the product: a committed `codesplain/` layer written by the developer's own coding agent, plus deterministic checks.
 
 ## Acceptance criteria
 1. Every facet answers a concrete question an engineer asks, tied to at least one decision situation (S1–S8).
@@ -134,7 +134,7 @@ Define the complete set of information ("facets") a software engineer needs to (
 | J3 | Open questions | Known unknowns, unresolved decisions | RECORDED | Until resolved |
 
 ## Claim model (applies to every facet)
-- Each statement in `why/` is a **claim** with: facet id, evidence refs, dependencies, source type, recorded-vs-inferred label, and status.
+- Each statement in `codesplain/` is a **claim** with: facet id, evidence refs, dependencies, source type, recorded-vs-inferred label, and status.
 - Status values: **verified** (a check passed at time T), **contradicted** (a completed check showed the claim is false), **inconclusive** (a check ran but could not decide, e.g. flaky or partial), **unchanged-evidence** (dependencies unchanged since last verification; not re-verified), **stale** (a dependency changed), **unverified** (never checked), **unknown** (cannot be determined, e.g. missing integration or outside analysis boundary).
 - COMPUTED results declare their analysis boundary and completeness (complete/partial/unknown). Supplements for what static analysis cannot see are allowed as RECORDED/EXTERNAL claims, never as edits to computed output.
 - A working link or unchanged fingerprint is never shown as "verified true".
@@ -153,5 +153,5 @@ Replacing observability, ticketing, or docs tools; we link to them.
 - Discovery: interview 10–15 engineers; map their last 3 "how/why" questions to facets (≥ 90% mapped); log unmapped needs as candidate facets.
 - Task trials across all situations, using only declared sources (no hand-filling COMPUTED facets): one representative task per S1–S8 on 3 real features (e.g. S3 reproduce a seeded bug, S4 review a PR with a seeded defect, S5 decide whether to delete a function with a hidden consumer, S8 determine authorship/review of current code).
 - Measure separately per situation: answer availability, evidence correctness, correct uncertainty handling (partial/unknown/stale shown when true), and interruptions.
-- Pass per situation: ≥ 80% questions answered from `why/` + code, 0 incorrect "verified" claims, all seeded partial/stale/unknown cases surfaced, ≤ 1 interruption per task.
+- Pass per situation: ≥ 80% questions answered from `codesplain/` + code, 0 incorrect "verified" claims, all seeded partial/stale/unknown cases surfaced, ≤ 1 interruption per task.
 - Include adverse cases: missing integrations, stale evidence, dynamic dispatch / cross-repo consumer, squash-merged approval, a claim contradicted on first validation, a check that passes then later fails, a check that fails then passes on rerun with unchanged code (must stay contradicted), and mixed outcomes across different checks for the same claim.

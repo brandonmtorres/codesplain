@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""check_why.py - read-only validator for a repository's `why/` folder.
+"""check_why.py - read-only validator for a repository's `codesplain/` folder.
 
 Safety properties (see SECURITY.md):
   * Standard library only. No network, no subprocess, no eval/exec, no pickle.
@@ -269,7 +269,7 @@ def list_note_dir(root, rel_dir, suffix, report):
     for entry in entries:
         rel = rel_dir + "/" + entry.name
         if entry.is_symlink():
-            report.error(rel, "symlinks are not supported in why/")
+            report.error(rel, "symlinks are not supported in codesplain/")
             rejected = True
         elif entry.is_dir(follow_symlinks=False):
             report.error(rel, "nested directories are not supported here")
@@ -288,10 +288,10 @@ def list_note_dir(root, rel_dir, suffix, report):
 
 
 def walk_why_files(root, report):
-    """All regular files under why/ (recursive, bounded). Returns (files, complete)."""
+    """All regular files under codesplain/ (recursive, bounded). Returns (files, complete)."""
     out = []
     complete = True
-    stack = ["why"]
+    stack = ["codesplain"]
     seen = 0
     while stack:
         rel_dir = stack.pop()
@@ -319,10 +319,10 @@ def walk_why_files(root, report):
                 stack.append(rel)
             elif entry.is_file(follow_symlinks=False):
                 out.append(rel)
-            else:  # never read, so it cannot leak into output; still not allowed in why/
+            else:  # never read, so it cannot leak into output; still not allowed in codesplain/
                 report.error(rel, "not a regular file")
     if not complete:
-        report.error("why", "secret scan incomplete (file or depth limit reached)")
+        report.error("codesplain", "secret scan incomplete (file or depth limit reached)")
     return sorted(out), complete
 
 
@@ -571,13 +571,13 @@ def validate_note(root, note, strict, report):
                 if not isinstance(sb, str) or not sb:
                     report.error(note.rel, "superseded entries require 'superseded_by'")
                 else:
-                    target = "why/journal/" + os.path.basename(sb)
+                    target = "codesplain/journal/" + os.path.basename(sb)
                     try:
                         safe_read(root, target)
                     except ReadError:
                         report.error(note.rel, "superseded_by points to a missing journal entry")
     if "status" in d:
-        report.error(note.rel, "do not hand-write 'status'; claim status is derived from why/events/")
+        report.error(note.rel, "do not hand-write 'status'; claim status is derived from codesplain/events/")
     if isinstance(d.get("files"), list):
         _check_refs(root, note, d["files"], strict, report, "files")
     if isinstance(d.get("symbols"), list):
@@ -1034,9 +1034,9 @@ def run_check(root, strict_paths, max_age_days, now=None):
     _RUN.root = root
     report = Report()
     now = now or _dt.datetime.now(_dt.timezone.utc)
-    why = os.path.join(root, "why")
+    why = os.path.join(root, "codesplain")
     if os.path.islink(why) or not os.path.isdir(why):
-        report.error("why", "no why/ directory found at the repository root")
+        report.error("codesplain", "no codesplain/ directory found at the repository root")
         return report
     strict = set()
     for p in strict_paths:
@@ -1046,7 +1046,7 @@ def run_check(root, strict_paths, max_age_days, now=None):
         strict.add(norm)
     notes = []
     note_files = []
-    for kind, sub in (("feature", "why/features"), ("journal", "why/journal")):
+    for kind, sub in (("feature", "codesplain/features"), ("journal", "codesplain/journal")):
         files, _ = list_note_dir(root, sub, ".md", report)
         for rel in files:
             note_files.append(rel)
@@ -1065,12 +1065,12 @@ def run_check(root, strict_paths, max_age_days, now=None):
             notes.append(note)
     for s in strict:
         if s not in note_files:
-            report.error(s, "--strict path is not a note file under why/features or why/journal")
+            report.error(s, "--strict path is not a note file under codesplain/features or codesplain/journal")
     claims_by_gid = {}
     for note in notes:
         for c in note.claims:
             claims_by_gid["%s#%s" % (note.rel, c["id"])] = (note, c)
-    event_files, events_complete = list_note_dir(root, "why/events", ".json", report)
+    event_files, events_complete = list_note_dir(root, "codesplain/events", ".json", report)
     events, incomplete_claims, all_incomplete = load_events(root, event_files, claims_by_gid, report, now)
     by_claim = {}
     for ev in events.values():
@@ -1088,7 +1088,7 @@ def run_check(root, strict_paths, max_age_days, now=None):
         elif status == "stale":
             report.warn(gid, "stale: a dependency changed since it was checked")
     if _RUN.exhausted:
-        report.error("why", "file-read budget exhausted; validation incomplete")
+        report.error("codesplain", "file-read budget exhausted; validation incomplete")
         for c in report.claims:
             if c["status"] in ("verified", "unchanged-evidence"):
                 c["status"] = "unknown"
@@ -1098,10 +1098,10 @@ def run_check(root, strict_paths, max_age_days, now=None):
     detected, contents_complete = scan_why_for_secrets(root, why_files, env_values, report)
     scan_complete = scan_complete and contents_complete
     redact_values = list(env_values) + sorted(detected)
-    known_dirs = ("why/features/", "why/journal/", "why/events/")
+    known_dirs = ("codesplain/features/", "codesplain/journal/", "codesplain/events/")
     for rel in why_files:
         if not rel.startswith(known_dirs):
-            report.warn(rel, "not part of the why/ format (scanned for secrets only)")
+            report.warn(rel, "not part of the codesplain/ format (scanned for secrets only)")
     # S5: never echo secret-shaped text or .env values in any output field (final output boundary).
     report.errors = _redact_deep(report.errors, redact_values)
     report.warnings = _redact_deep(report.warnings, redact_values)
@@ -1109,7 +1109,7 @@ def run_check(root, strict_paths, max_age_days, now=None):
     if not (env_complete and scan_complete):
         # Redaction cannot be guaranteed: suppress every input-derived detail.
         n_err, n_warn = len(report.errors), len(report.warnings)
-        report.errors = [{"where": "why" if env_complete else ".env*",
+        report.errors = [{"where": "codesplain" if env_complete else ".env*",
                           "message": "secret scan or .env collection incomplete; details suppressed because "
                           "secret redaction cannot be guaranteed (%d error(s), %d warning(s) hidden)"
                           % (n_err, n_warn)}]
@@ -1132,7 +1132,7 @@ def _print_human(report, out):
 
 def main(argv=None, out=None):
     out = out or sys.stdout
-    parser = argparse.ArgumentParser(description="Read-only validator for why/ notes.")
+    parser = argparse.ArgumentParser(description="Read-only validator for codesplain/ notes.")
     parser.add_argument("--root", default=".", help="repository root (default: current directory)")
     parser.add_argument("--json", action="store_true", help="machine-readable output")
     parser.add_argument("--strict", action="append", default=[], metavar="PATH",

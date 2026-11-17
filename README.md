@@ -4,7 +4,7 @@
 
 AI agents write code faster than anyone can read it. A month later, nobody can say why a function exists, whether it's safe to delete, or what breaks if it changes. The agent that wrote it is gone, and the reasoning went with it.
 
-codesplain is an agent skill that fixes this. It teaches your coding agent to keep a small, committed `why/` folder: **how each feature works**, and **why each change was made**, written at the moment the reasoning exists. When anyone (human or agent) later asks "how does this work?" or "why is this here?", they get a cited answer that says how sure it is, not a confident guess.
+codesplain is an agent skill that fixes this. It teaches your coding agent to keep a small, committed `codesplain/` folder: **how each feature works**, and **why each change was made**, written at the moment the reasoning exists. When anyone (human or agent) later asks "how does this work?" or "why is this here?", they get a cited answer that says how sure it is, not a confident guess.
 
 It's small, plain Markdown, works with any model, and ships with an offline, read-only checker. Adapt it however you like.
 
@@ -87,8 +87,8 @@ I built this to fix the failure modes I kept hitting when AI writes most of the 
 
 **The Fix.** After any significant change (a new function, route, job or CLI command; a schema or migration; config, flags or env vars; a new dependency; changed test assertions), the agent writes:
 
-- **A journal entry** in `why/journal/`: the origin, the decision and its alternatives, what breaks if it's removed, and whether it's still needed.
-- **An updated feature page** in `why/features/`: the flow, where to change things, the rules, the gotchas, and how to verify.
+- **A journal entry** in `codesplain/journal/`: the origin, the decision and its alternatives, what breaks if it's removed, and whether it's still needed.
+- **An updated feature page** in `codesplain/features/`: the flow, where to change things, the rules, the gotchas, and how to verify.
 
 Each entry is one small file, so there are no merge conflicts, and history is append-only.
 
@@ -96,7 +96,7 @@ Each entry is one small file, so there are no merge conflicts, and history is ap
 
 **The Problem.** Ask an agent why some code exists and it will give you a plausible story, whether or not anyone ever decided that.
 
-**The Fix.** Every statement in `why/` is a claim labeled **`recorded`** (someone actually said it, or the agent actually did it) or **`inferred`** (deduced from code). When nothing was recorded, the agent says **"No recorded intent."** and labels any guess as a guess.
+**The Fix.** Every statement in `codesplain/` is a claim labeled **`recorded`** (someone actually said it, or the agent actually did it) or **`inferred`** (deduced from code). When nothing was recorded, the agent says **"No recorded intent."** and labels any guess as a guess.
 
 ### #3: Docs Lie As Soon As The Code Changes
 
@@ -119,7 +119,7 @@ The checker also rejects notes that reference functions or files that don't exis
 
 **The Problem.** When agents document config, they open `.env` files and copy what they see.
 
-**The Fix.** The skill tells agents to **never open `.env` or credential files** and to refer to configuration by variable *name* only. As a backstop, the checker scans `why/` for secrets and never prints a secret's value.
+**The Fix.** The skill tells agents to **never open `.env` or credential files** and to refer to configuration by variable *name* only. As a backstop, the checker scans `codesplain/` for secrets and never prints a secret's value.
 
 ### Summary
 
@@ -131,7 +131,7 @@ Agents made writing code nearly free. Understanding it is now the bottleneck. co
 
 **Model-invoked** (the agent reaches for it automatically when the task fits, or you can call it with `/codesplain:codesplain`, or `/codesplain` if copied manually)
 
-- **[codesplain](./skills/codesplain/SKILL.md)**: Answers "how does X work?" and "why does X exist?" from `why/`, with the status of each claim. Writes journal entries and feature pages after significant changes.
+- **[codesplain](./skills/codesplain/SKILL.md)**: Answers "how does X work?" and "why does X exist?" from `codesplain/`, with the status of each claim. Writes journal entries and feature pages after significant changes.
 
 **Ways to use it**
 
@@ -142,7 +142,7 @@ Agents made writing code nearly free. Understanding it is now the bottleneck. co
 ### Format
 
 ```
-why/
+codesplain/
   features/<feature>.md          how a feature works now
   journal/YYYY-MM-DD-<slug>.md   why each significant change was made (append-only)
   events/<id>.json               recorded checks behind each claim's status
