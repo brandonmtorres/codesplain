@@ -1,6 +1,6 @@
-# why-notes
+# codesplain
 
-**Make AI-written code explainable.** `why-notes` is an agent skill that teaches AI coding agents (Claude Code and other agents that load `SKILL.md` skills) to keep a committed `.why/` folder. It records **how each feature works** and **why each change was made**, so anyone (human or agent) can later ask "how does this work?" or "why does this exist?" and get cited, status-labeled answers instead of guesses.
+**Make AI-written code explainable.** codesplain is an agent skill (named `why-notes` inside the repo) that teaches AI coding agents (Claude Code and other agents that load `SKILL.md` skills) to keep a committed `.why/` folder. It records **how each feature works** and **why each change was made**, so anyone (human or agent) can later ask "how does this work?" or "why does this exist?" and get cited, status-labeled answers instead of guesses.
 
 ```
 .why/
@@ -41,6 +41,32 @@ python3 skills/why-notes/scripts/check_why.py --root /path/to/your/repo
 
 It needs Python 3.9+ and has no dependencies. Exit code 0 means no errors, 1 means errors were found, 2 means a usage error.
 
+## Commands
+
+### The skill
+
+| How to use it | What it does |
+|---|---|
+| Ask "how does X work?" | Answers from `.why/`: flow, where to change, rules, gotchas, how to verify, and the status of each claim |
+| Ask "why does X exist?" or "can I delete X?" | Answers with the origin, what breaks if removed, whether it's still needed, and the decision. Says "No recorded intent" if nothing was recorded |
+| Make a significant change (new function, route, job or CLI command; schema; config or env var; dependency; test assertions) | The agent writes a journal entry, updates the feature page, and runs the checker |
+| `/why-notes` (Claude Code) | Loads the skill explicitly. It also loads automatically when one of the situations above comes up |
+
+### The checker (`check_why.py`)
+
+Run from your repository, replacing `SKILL_DIR` with the path to `skills/why-notes`:
+
+| Command | What it does |
+|---|---|
+| `python3 SKILL_DIR/scripts/check_why.py --root .` | Validates everything in `.why/` and lists each claim's status, in human-readable form |
+| `... --json` | The same, as machine-readable JSON (for CI or agents) |
+| `... --strict .why/journal/<entry>.md` | Validates a newly written note strictly: every referenced file and symbol must exist. Repeatable |
+| `... --hash <path>` | Prints a file's SHA-256, used when recording a validation event |
+| `... --claim-hash <note>#<claim-id>` | Prints a claim's revision hash, used when recording a validation event |
+| `... --max-age-days N` | How long a passing check counts as `verified` (default 90). After that it shows `unchanged-evidence` |
+
+Exit codes: `0` means no errors (warnings may be present), `1` means errors were found, `2` means a usage error.
+
 ## Safety
 
 - **No network access.** No telemetry, no update checks.
@@ -60,4 +86,4 @@ The design and facet catalog are in [docs/PLAN.md](docs/PLAN.md) and [docs/FACET
 
 ## License
 
-MIT, © why-notes contributors. See [LICENSE](LICENSE).
+MIT, © codesplain contributors. See [LICENSE](LICENSE).
