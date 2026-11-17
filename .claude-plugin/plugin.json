@@ -1,0 +1,14 @@
+{
+  "name": "codesplain",
+  "version": "0.1.0",
+  "description": "Explain AI-written code: keeps a committed why/ folder of how features work and why changes were made, with status-labeled claims and an offline, read-only checker.",
+  "author": {
+    "name": "brandonmtorres",
+    "url": "https://github.com/brandonmtorres"
+  },
+  "homepage": "https://github.com/brandonmtorres/codesplain",
+  "repository": "https://github.com/brandonmtorres/codesplain",
+  "license": "MIT",
+  "keywords": ["documentation", "code-explanation", "decision-records", "ai-coding", "skills"],
+  "skills": ["./skills/why-notes"]
+}

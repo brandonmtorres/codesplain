@@ -1,78 +1,176 @@
 # codesplain
 
-**Make AI-written code explainable.** codesplain is an agent skill (named `why-notes` inside the repo) that teaches AI coding agents (Claude Code and other agents that load `SKILL.md` skills) to keep a committed `.why/` folder. It records **how each feature works** and **why each change was made**, so anyone (human or agent) can later ask "how does this work?" or "why does this exist?" and get cited, status-labeled answers instead of guesses.
+**Explain AI-written code: what it does, and why it exists.**
+
+AI agents write code faster than anyone can read it. A month later, nobody can say why a function exists, whether it's safe to delete, or what breaks if it changes. The agent that wrote it is gone, and the reasoning went with it.
+
+codesplain is an agent skill that fixes this. It teaches your coding agent to keep a small, committed `why/` folder: **how each feature works**, and **why each change was made**, written at the moment the reasoning exists. When anyone (human or agent) later asks "how does this work?" or "why is this here?", they get a cited answer that says how sure it is, not a confident guess.
+
+It's small, plain Markdown, works with any model, and ships with an offline, read-only checker. Adapt it however you like.
+
+## Installation (30-second setup)
+
+### 1. Get the skill
+
+<details open>
+<summary><strong>Claude Code</strong> (plugin, recommended)</summary>
+
+In Claude Code, run:
 
 ```
-.why/
-  features/payments.md                      how payments work now
-  journal/2026-11-17-configurable-retries.md    why retries became configurable
-  events/…json                              which claims were checked, and the result
+/plugin install codesplain --marketplace brandonmtorres/codesplain
 ```
 
-## What you get
+On versions older than 2.1.275, use two steps instead:
 
-- **Question-shaped answers.** "How" answers cover flow, where to change, rules, gotchas and how to verify. "Why" answers cover origin, what breaks if removed, whether it's still needed, and the decision.
-- **Claims, not prose.** Every statement is labeled `recorded` or `inferred`. Its status (`verified`, `stale`, `contradicted`, …) is **derived** from recorded checks, never typed by hand.
-- **Honest gaps.** With no note, the agent says "No recorded intent" instead of making a reason up.
-- **A read-only checker.** It catches references to code that doesn't exist, stale claims, malformed notes and leaked secrets.
+```
+/plugin marketplace add brandonmtorres/codesplain
+/plugin install codesplain@codesplain
+```
 
-## Install (Claude Code)
+From a terminal: `claude plugin marketplace add brandonmtorres/codesplain`, then `claude plugin install codesplain@codesplain`.
 
-Copy the skill folder into your skills directory:
+Update with `/plugin update codesplain`.
+
+</details>
+
+<details>
+<summary><strong>Claude Code</strong> (manual copy)</summary>
 
 ```bash
+git clone https://github.com/brandonmtorres/codesplain.git
 mkdir -p ~/.claude/skills
-cp -r skills/why-notes ~/.claude/skills/why-notes
+cp -r codesplain/skills/why-notes ~/.claude/skills/why-notes
 ```
 
-Or install it per project: copy `skills/why-notes` into `.claude/skills/why-notes` inside the repository.
+For one project only, copy it to `.claude/skills/why-notes` inside that repository instead.
 
-Other agents: point them at `skills/why-notes/SKILL.md`. It's plain Markdown plus one optional Python script.
+</details>
 
-## Use
+<details>
+<summary><strong>Codex, Copilot CLI, Gemini CLI</strong></summary>
 
-- Ask your agent: *"How does checkout work?"* or *"Why does `seen_recently` exist? Can I delete it?"*
-- After a significant change, the agent adds a journal entry and updates the feature page.
-- Run the checker yourself, or in CI:
+These agents also read skills from `~/.agents/skills/`:
 
 ```bash
-python3 skills/why-notes/scripts/check_why.py --root /path/to/your/repo
+git clone https://github.com/brandonmtorres/codesplain.git
+mkdir -p ~/.agents/skills
+cp -r codesplain/skills/why-notes ~/.agents/skills/why-notes
 ```
 
-It needs Python 3.9+ and has no dependencies. Exit code 0 means no errors, 1 means errors were found, 2 means a usage error.
+</details>
 
-## Commands
+<details>
+<summary><strong>Any other agent</strong></summary>
 
-### The skill
+Point your agent at `skills/why-notes/SKILL.md`. It's plain Markdown plus one optional Python script, with no dependencies.
 
-| How to use it | What it does |
+</details>
+
+### 2. Use your agent normally
+
+There's no setup step. The skill activates when you ask how or why something works, before you change or delete code, and after a significant change. You can also load it explicitly: `/codesplain:why-notes` when installed as a plugin, or `/why-notes` when copied manually.
+
+### 3. Done. Your codebase now remembers why.
+
+## Why This Exists
+
+I built this to fix the failure modes I kept hitting when AI writes most of the code.
+
+### #1: Nobody Can Explain The Code
+
+> Before you remove a fence, find out why it was put up.
+>
+> Paraphrasing G. K. Chesterton, "Chesterton's fence"
+
+**The Problem.** The *why* behind a change exists for a few minutes, inside the agent session: the request, the plan, the alternatives it rejected. Then the session ends and only the code survives. Code tells you *what*, never *why*.
+
+**The Fix.** After any significant change (a new function, route, job or CLI command; a schema or migration; config, flags or env vars; a new dependency; changed test assertions), the agent writes:
+
+- **A journal entry** in `why/journal/`: the origin, the decision and its alternatives, what breaks if it's removed, and whether it's still needed.
+- **An updated feature page** in `why/features/`: the flow, where to change things, the rules, the gotchas, and how to verify.
+
+Each entry is one small file, so there are no merge conflicts, and history is append-only.
+
+### #2: The Agent Guesses "Why", Confidently
+
+**The Problem.** Ask an agent why some code exists and it will give you a plausible story, whether or not anyone ever decided that.
+
+**The Fix.** Every statement in `why/` is a claim labeled **`recorded`** (someone actually said it, or the agent actually did it) or **`inferred`** (deduced from code). When nothing was recorded, the agent says **"No recorded intent."** and labels any guess as a guess.
+
+### #3: Docs Lie As Soon As The Code Changes
+
+**The Problem.** Documentation goes stale silently, and stale docs are worse than none because people trust them.
+
+**The Fix.** Claim status is **calculated by the checker, never typed by hand**. Each claim is tied to the files it depends on and to recorded checks:
+
+| Status | Meaning |
 |---|---|
-| Ask "how does X work?" | Answers from `.why/`: flow, where to change, rules, gotchas, how to verify, and the status of each claim |
-| Ask "why does X exist?" or "can I delete X?" | Answers with the origin, what breaks if removed, whether it's still needed, and the decision. Says "No recorded intent" if nothing was recorded |
-| Make a significant change (new function, route, job or CLI command; schema; config or env var; dependency; test assertions) | The agent writes a journal entry, updates the feature page, and runs the checker |
-| `/why-notes` (Claude Code) | Loads the skill explicitly. It also loads automatically when one of the situations above comes up |
+| `verified` | A recent check passed against the current code |
+| `unchanged-evidence` | Passed a while ago, and nothing it depends on has changed |
+| `stale` | Something it depends on changed after it was checked |
+| `unverified` | Never checked |
+| `inconclusive` / `unknown` | A check couldn't decide, or wasn't available |
+| `contradicted` | A check proved it false. It stays flagged until it's explicitly resolved |
 
-### The checker (`check_why.py`)
+The checker also rejects notes that reference functions or files that don't exist, which catches made-up details at write time.
 
-Run from your repository, replacing `SKILL_DIR` with the path to `skills/why-notes`:
+### #4: Secrets End Up In Docs
+
+**The Problem.** When agents document config, they open `.env` files and copy what they see.
+
+**The Fix.** The skill tells agents to **never open `.env` or credential files** and to refer to configuration by variable *name* only. As a backstop, the checker scans `why/` for secrets and never prints a secret's value.
+
+### Summary
+
+Agents made writing code nearly free. Understanding it is now the bottleneck. codesplain keeps a record of why your code exists, with honest labels for what's known and what's guessed.
+
+## Reference
+
+### Skill
+
+**Model-invoked** (the agent reaches for it automatically when the task fits, or you can call it with `/codesplain:why-notes`, or `/why-notes` if copied manually)
+
+- **[why-notes](./skills/why-notes/SKILL.md)**: Answers "how does X work?" and "why does X exist?" from `why/`, with the status of each claim. Writes journal entries and feature pages after significant changes.
+
+**Ways to use it**
+
+- **"How does checkout work?"**: flow, where to change, rules, gotchas, how to verify, and confidence.
+- **"Why does `seen_recently` exist? Can I delete it?"**: origin, what breaks if removed, whether it's still needed, the decision, and confidence.
+- **After a significant change**: the agent writes the journal entry and feature page, then runs the checker.
+
+### Checker
+
+`skills/why-notes/scripts/check_why.py` needs Python 3.9+, uses the standard library only, and works offline. Run it from your repository:
 
 | Command | What it does |
 |---|---|
-| `python3 SKILL_DIR/scripts/check_why.py --root .` | Validates everything in `.why/` and lists each claim's status, in human-readable form |
-| `... --json` | The same, as machine-readable JSON (for CI or agents) |
-| `... --strict .why/journal/<entry>.md` | Validates a newly written note strictly: every referenced file and symbol must exist. Repeatable |
-| `... --hash <path>` | Prints a file's SHA-256, used when recording a validation event |
-| `... --claim-hash <note>#<claim-id>` | Prints a claim's revision hash, used when recording a validation event |
-| `... --max-age-days N` | How long a passing check counts as `verified` (default 90). After that it shows `unchanged-evidence` |
+| `python3 check_why.py --root .` | Validates everything in `why/` and lists each claim's status |
+| `... --json` | The same, as JSON for CI or agents |
+| `... --strict why/journal/<entry>.md` | Strictly validates a new note: every referenced file and symbol must exist. Repeatable |
+| `... --hash <path>` | Prints a file's SHA-256, used when recording a check |
+| `... --claim-hash <note>#<claim-id>` | Prints a claim's revision hash, used when recording a check |
+| `... --max-age-days N` | How long a passing check counts as `verified` (default 90) |
 
 Exit codes: `0` means no errors (warnings may be present), `1` means errors were found, `2` means a usage error.
+
+### Format
+
+```
+why/
+  features/<feature>.md          how a feature works now
+  journal/YYYY-MM-DD-<slug>.md   why each significant change was made (append-only)
+  events/<id>.json               recorded checks behind each claim's status
+```
+
+Templates and the full rules are in [`reference/format.md`](./skills/why-notes/reference/format.md). The facet catalog (the 59 kinds of information an engineer needs) is in [`docs/FACETS.md`](./docs/FACETS.md).
 
 ## Safety
 
 - **No network access.** No telemetry, no update checks.
 - **No automatic execution.** The skill installs no hooks, changes no configuration and starts no background processes.
-- **The checker is read-only.** It uses the standard library only, never writes or deletes files, reads only regular files inside the repository you point it at, and **never prints secret values**.
-- The skill tells agents never to open `.env` or credential files, and to refer to configuration by variable name only.
+- **The checker is read-only.** It never writes or deletes files, reads only regular files inside the repository you point it at, and never prints a secret's value. If it can't guarantee redaction, it hides all details and fails.
+- **The secret scan is a backstop, not a guarantee.** The main protection is that agents never copy secrets into notes in the first place.
 
 Details are in [SECURITY.md](SECURITY.md).
 
@@ -82,8 +180,8 @@ Details are in [SECURITY.md](SECURITY.md).
 python3 -m unittest discover -s tests -v
 ```
 
-The design and facet catalog are in [docs/PLAN.md](docs/PLAN.md) and [docs/FACETS.md](docs/FACETS.md).
+The design is in [`docs/PLAN.md`](./docs/PLAN.md).
 
 ## License
 
-MIT, © codesplain contributors. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

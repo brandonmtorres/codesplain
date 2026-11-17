@@ -16,7 +16,7 @@
 - **Regular files only.** Before reading, the file type is checked with `lstat`, and again with `fstat` on the opened descriptor (opened with `O_NONBLOCK` and, where available, `O_NOFOLLOW`). FIFOs, devices and sockets are refused without blocking.
 - **Resource limits.** Files larger than 2 MB are skipped, and directory listings are capped.
 - **Secrets are never printed.** Every output field (locations, messages, claim ids) is redacted before printing. Anything matching a secret rule, or equal to a `.env*` value, becomes `[REDACTED]`. `.env` values are parsed without expansion or execution, handling quoted values and inline ` #` comments.
-- **Complete scanning or an error.** Everything under `.why/` is scanned for secrets, recursively, up to the limits. Hitting a limit is reported as an error, never as silent success. If event history is incomplete, no claim is reported as verified.
+- **Complete scanning or an error.** Everything under `why/` is scanned for secrets, recursively, up to the limits. Hitting a limit is reported as an error, never as silent success. If event history is incomplete, no claim is reported as verified.
 - **Detection details.** Possible secrets are reported as `file:line` plus a rule name. To detect leaks, the checker reads `.env*` files at the repository root and compares their values in memory. It never prints, stores or sends those values.
 
 These guarantees are enforced by tests in `tests/test_check_why.py`. They include a static audit of the script's syntax tree that fails if forbidden modules or calls appear.
@@ -24,7 +24,7 @@ These guarantees are enforced by tests in `tests/test_check_why.py`. They includ
 ## What the skill instructions ask of agents
 
 - Never open `.env*`, credential files or key stores when writing notes. Refer to configuration by variable **name** only.
-- Never write secrets, tokens, personal data, customer data or transcripts into `.why/`.
+- Never write secrets, tokens, personal data, customer data or transcripts into `why/`.
 - Never hand-edit the checker to silence errors.
 
 Instructions can't technically force an agent's behavior. The checker's secret scan is the backstop.

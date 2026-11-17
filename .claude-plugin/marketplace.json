@@ -1,0 +1,17 @@
+{
+  "name": "codesplain",
+  "owner": {
+    "name": "brandonmtorres",
+    "url": "https://github.com/brandonmtorres"
+  },
+  "description": "codesplain: explain AI-written code, what it does and why it exists.",
+  "plugins": [
+    {
+      "name": "codesplain",
+      "source": "./",
+      "description": "Keeps a committed why/ folder of how features work and why changes were made, with status-labeled claims and an offline, read-only checker.",
+      "category": "productivity",
+      "keywords": ["documentation", "code-explanation", "decision-records", "ai-coding", "skills"]
+    }
+  ]
+}

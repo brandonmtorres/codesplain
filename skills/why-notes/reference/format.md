@@ -1,7 +1,7 @@
-# `.why/` format reference
+# `why/` format reference
 
 ```
-.why/
+why/
   features/<feature>.md          how a feature works now (describes CURRENT code)
   journal/YYYY-MM-DD-<slug>.md   one entry per significant change (HISTORICAL, append-only)
   events/<event-id>.json         one validation or resolution event per file
@@ -27,7 +27,7 @@ claims:
 - Event JSON files must not repeat a key.
 - Comma-separated values are used inside claims for `deps` and `required_checks`.
 
-## Feature page template: `.why/features/<feature>.md`
+## Feature page template: `why/features/<feature>.md`
 
 ```markdown
 ---
@@ -76,7 +76,7 @@ create_payment → seen_recently → remember → charge_card → provider
 
 `files` and `symbols` on a feature page must exist (the checker reports an ERROR otherwise).
 
-## Journal entry template: `.why/journal/YYYY-MM-DD-<slug>.md`
+## Journal entry template: `why/journal/YYYY-MM-DD-<slug>.md`
 
 ```markdown
 ---
@@ -123,16 +123,16 @@ claims:
 - `change_type`: feature | fix | refactor | config | dependency | schema | removal | other.
 - `commit`: the commit hash when known; otherwise `working-tree`.
 - Deleted or renamed code goes under `removed:` as `path@commit` or `path#symbol@commit`.
-- Only `features/*.md`, `journal/*.md` and `events/*.json` are part of the format. Other files under `.why/` are warned about, and everything under `.why/` is scanned for secrets.
+- Only `features/*.md`, `journal/*.md` and `events/*.json` are part of the format. Other files under `why/` are warned about, and everything under `why/` is scanned for secrets.
 - Superseding: in the old entry, set `lifecycle: superseded` and `superseded_by: <new-entry-file-name>.md`.
 - Never write `status:`. The checker derives it.
 
-## Validation events: `.why/events/<id>.json`
+## Validation events: `why/events/<id>.json`
 
 Only record an event for a check you actually ran and observed. The hashes must describe exactly what was checked:
 
 1. **Immediately before** running the check, get the claim's revision hash and the hash of every file in its `deps`:
-   `python3 SKILL_DIR/scripts/check_why.py --root . --claim-hash .why/features/payments.md#no-double-charge`
+   `python3 SKILL_DIR/scripts/check_why.py --root . --claim-hash why/features/payments.md#no-double-charge`
    `python3 SKILL_DIR/scripts/check_why.py --root . --hash shop/payments.py`
 2. Run the check, for example the test, and note the result. **Immediately after**, recompute the same hashes. If any hash changed, the result doesn't describe the current code: discard it and rerun the check. Never record hashes taken at a different time from the check.
 3. Write one JSON file:
@@ -141,7 +141,7 @@ Only record an event for a check you actually ran and observed. The hashes must 
 {
   "id": "2026-11-17-payments-no-double-charge-1",
   "type": "validation",
-  "claim": ".why/features/payments.md#no-double-charge",
+  "claim": "why/features/payments.md#no-double-charge",
   "claim_hash": "<64-hex from step 1>",
   "snapshot": {"shop/payments.py": "<64-hex>", "shop/idempotency.py": "<64-hex>"},
   "check": "tests/test_payments.py::test_duplicate_request",
@@ -158,7 +158,7 @@ Only record an event for a check you actually ran and observed. The hashes must 
 **A resolution** clears exactly one failure. It doesn't make the claim verified; a new passing check is still needed.
 
 ```json
-{"id": "2026-11-17-r1", "type": "resolution", "claim": ".why/features/payments.md#no-double-charge",
+{"id": "2026-11-17-r1", "type": "resolution", "claim": "why/features/payments.md#no-double-charge",
  "resolves": "<id of the fail event>", "reason": "Fixed race in remember(); see journal 2026-11-17-fix-race.md",
  "at": "2026-11-17T12:00:00Z"}
 ```
