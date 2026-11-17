@@ -1,4 +1,4 @@
-# PLAN: `why-notes` — open-source agent skill for a `why/` code-knowledge layer
+# PLAN: `codesplain` — open-source agent skill for a `why/` code-knowledge layer
 
 ## Goal
 Ship an open-source (MIT) agent skill that makes AI coding agents (Claude Code first; any agent that loads `SKILL.md`-style skills) **record** and **use** a committed `why/` folder of feature pages and journal entries, so engineers and agents can answer "how does X work?" and "why was X written?" with cited, status-labeled claims instead of guesses.
@@ -12,19 +12,19 @@ S3. **Bundled script is read-only**: Python 3 standard library only; no `subproc
 S4a. **Regular files only**: every content read (notes, `.env*`, referenced files, `--hash`) requires a regular file: `lstat` check, then open with `O_RDONLY|O_NONBLOCK` (plus `O_NOFOLLOW` where available) and verify with `fstat`/`S_ISREG` on the opened descriptor before reading; FIFOs, devices, sockets and directories are rejected without blocking. Tests include a FIFO.
 S4. **Path containment**: every path from note content is resolved and rejected if absolute, contains `..` escaping the root, or resolves (via symlink) outside the root. Symlinks are not followed outside the root. File size cap (e.g. 2 MB) and file-count cap to avoid resource exhaustion.
 S5. **Never echo secrets**: when the checker finds a likely secret it reports file:line and the pattern name only, never the matched value. `.env`-style values are compared in memory and never printed.
-S6. **No secrets or personal data in the repository**: no real keys, tokens, emails, usernames, or machine paths. Test fixtures that need secret-looking strings construct them at runtime from fragments so the repo contains no literal matching secret patterns (avoids leaks and secret-scanner false alarms). LICENSE copyright holder: "why-notes contributors".
+S6. **No secrets or personal data in the repository**: no real keys, tokens, emails, usernames, or machine paths. Test fixtures that need secret-looking strings construct them at runtime from fragments so the repo contains no literal matching secret patterns (avoids leaks and secret-scanner false alarms). LICENSE copyright holder: "codesplain contributors".
 S7. **Skill instructions forbid agents from writing secrets/PII** into `why/`: only environment variable *names*, never values; no transcript dumps; no customer data. The skill also tells agents **never to open `.env*` or other secret files** when writing notes (baseline tests showed agents opening `.env` to document config). Only the local checker reads `.env*` values, in memory, to detect leaks; it never prints them.
 S8. **Clear docs**: SECURITY.md (what the script does/doesn't do, how to report issues), README states no network, no auto-execution.
 
 ## Deliverables (repo layout)
 ```
 README.md            install, usage, safety summary
-LICENSE              MIT, "why-notes contributors"
+LICENSE              MIT, "codesplain contributors"
 SECURITY.md          threat model + guarantees + reporting
 .gitignore
 docs/PLAN.md         this plan
 docs/FACETS.md       approved facet catalog (source of the v1 subset)
-skills/why-notes/
+skills/codesplain/
   SKILL.md           frontmatter (name, "Use when..." description) + core instructions
   reference/format.md  why/ layout, frontmatter subset, claim model, templates
   reference/facets.md  condensed facet catalog (v1 subset marked)

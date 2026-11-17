@@ -40,10 +40,10 @@ Update with `/plugin update codesplain`.
 ```bash
 git clone https://github.com/brandonmtorres/codesplain.git
 mkdir -p ~/.claude/skills
-cp -r codesplain/skills/why-notes ~/.claude/skills/why-notes
+cp -r codesplain/skills/codesplain ~/.claude/skills/codesplain
 ```
 
-For one project only, copy it to `.claude/skills/why-notes` inside that repository instead.
+For one project only, copy it to `.claude/skills/codesplain` inside that repository instead.
 
 </details>
 
@@ -55,7 +55,7 @@ These agents also read skills from `~/.agents/skills/`:
 ```bash
 git clone https://github.com/brandonmtorres/codesplain.git
 mkdir -p ~/.agents/skills
-cp -r codesplain/skills/why-notes ~/.agents/skills/why-notes
+cp -r codesplain/skills/codesplain ~/.agents/skills/codesplain
 ```
 
 </details>
@@ -63,13 +63,13 @@ cp -r codesplain/skills/why-notes ~/.agents/skills/why-notes
 <details>
 <summary><strong>Any other agent</strong></summary>
 
-Point your agent at `skills/why-notes/SKILL.md`. It's plain Markdown plus one optional Python script, with no dependencies.
+Point your agent at `skills/codesplain/SKILL.md`. It's plain Markdown plus one optional Python script, with no dependencies.
 
 </details>
 
 ### 2. Use your agent normally
 
-There's no setup step. The skill activates when you ask how or why something works, before you change or delete code, and after a significant change. You can also load it explicitly: `/codesplain:why-notes` when installed as a plugin, or `/why-notes` when copied manually.
+There's no setup step. The skill activates when you ask how or why something works, before you change or delete code, and after a significant change. You can also load it explicitly: `/codesplain:codesplain` when installed as a plugin, or `/codesplain` when copied manually.
 
 ### 3. Done. Your codebase now remembers why.
 
@@ -129,30 +129,15 @@ Agents made writing code nearly free. Understanding it is now the bottleneck. co
 
 ### Skill
 
-**Model-invoked** (the agent reaches for it automatically when the task fits, or you can call it with `/codesplain:why-notes`, or `/why-notes` if copied manually)
+**Model-invoked** (the agent reaches for it automatically when the task fits, or you can call it with `/codesplain:codesplain`, or `/codesplain` if copied manually)
 
-- **[why-notes](./skills/why-notes/SKILL.md)**: Answers "how does X work?" and "why does X exist?" from `why/`, with the status of each claim. Writes journal entries and feature pages after significant changes.
+- **[codesplain](./skills/codesplain/SKILL.md)**: Answers "how does X work?" and "why does X exist?" from `why/`, with the status of each claim. Writes journal entries and feature pages after significant changes.
 
 **Ways to use it**
 
 - **"How does checkout work?"**: flow, where to change, rules, gotchas, how to verify, and confidence.
 - **"Why does `seen_recently` exist? Can I delete it?"**: origin, what breaks if removed, whether it's still needed, the decision, and confidence.
 - **After a significant change**: the agent writes the journal entry and feature page, then runs the checker.
-
-### Checker
-
-`skills/why-notes/scripts/check_why.py` needs Python 3.9+, uses the standard library only, and works offline. Run it from your repository:
-
-| Command | What it does |
-|---|---|
-| `python3 check_why.py --root .` | Validates everything in `why/` and lists each claim's status |
-| `... --json` | The same, as JSON for CI or agents |
-| `... --strict why/journal/<entry>.md` | Strictly validates a new note: every referenced file and symbol must exist. Repeatable |
-| `... --hash <path>` | Prints a file's SHA-256, used when recording a check |
-| `... --claim-hash <note>#<claim-id>` | Prints a claim's revision hash, used when recording a check |
-| `... --max-age-days N` | How long a passing check counts as `verified` (default 90) |
-
-Exit codes: `0` means no errors (warnings may be present), `1` means errors were found, `2` means a usage error.
 
 ### Format
 
@@ -163,7 +148,7 @@ why/
   events/<id>.json               recorded checks behind each claim's status
 ```
 
-Templates and the full rules are in [`reference/format.md`](./skills/why-notes/reference/format.md). The facet catalog (the 59 kinds of information an engineer needs) is in [`docs/FACETS.md`](./docs/FACETS.md).
+Templates and the full rules are in [`reference/format.md`](./skills/codesplain/reference/format.md). The facet catalog (the 59 kinds of information an engineer needs) is in [`docs/FACETS.md`](./docs/FACETS.md).
 
 ## Safety
 

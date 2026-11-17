@@ -10,5 +10,5 @@
   "repository": "https://github.com/brandonmtorres/codesplain",
   "license": "MIT",
   "keywords": ["documentation", "code-explanation", "decision-records", "ai-coding", "skills"],
-  "skills": ["./skills/why-notes"]
+  "skills": ["./skills/codesplain"]
 }

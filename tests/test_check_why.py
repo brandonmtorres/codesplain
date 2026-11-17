@@ -1,4 +1,4 @@
-"""Tests for skills/why-notes/scripts/check_why.py.
+"""Tests for skills/codesplain/scripts/check_why.py.
 
 All fixtures are created inside temporary directories at runtime. Secret-looking
 strings are assembled from fragments so this repository never contains a literal
@@ -17,7 +17,7 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-SCRIPT = os.path.join(REPO, "skills", "why-notes", "scripts", "check_why.py")
+SCRIPT = os.path.join(REPO, "skills", "codesplain", "scripts", "check_why.py")
 
 _spec = importlib.util.spec_from_file_location("check_why", SCRIPT)
 cw = importlib.util.module_from_spec(_spec)
@@ -577,7 +577,7 @@ class InspectionRegressionTests(Base):
         self.assertNotIn(FAKE_ENV_VALUE, out)
 
     def test_format_example_scopes_match(self):
-        fmt = read(os.path.join(REPO, "skills", "why-notes", "reference", "format.md"))
+        fmt = read(os.path.join(REPO, "skills", "codesplain", "reference", "format.md"))
         self.assertIn("test_duplicate_request@unit", fmt)
         self.assertIn('"scope": "unit"', fmt)
 
@@ -847,10 +847,10 @@ class SixthInspectionRegressionTests(Base):
         self.assertIn("do not hand-write", self.msgs(self.check().errors))
 
     def test_docs_require_hashes_around_check_and_checker_last(self):
-        fmt = read(os.path.join(REPO, "skills", "why-notes", "reference", "format.md"))
+        fmt = read(os.path.join(REPO, "skills", "codesplain", "reference", "format.md"))
         self.assertIn("Immediately before", fmt)
         self.assertIn("Immediately after", fmt)
-        skill = read(os.path.join(REPO, "skills", "why-notes", "SKILL.md"))
+        skill = read(os.path.join(REPO, "skills", "codesplain", "SKILL.md"))
         self.assertLess(skill.index("record a validation event"), skill.index("Run the checker last"))
 
 

@@ -1,6 +1,6 @@
 # Facet catalog: v1 treatment
 
-Use these ids in a claim's `facet:` field. The full catalog, with questions, sources and freshness rules, is in `docs/FACETS.md` in the why-notes repository.
+Use these ids in a claim's `facet:` field. The full catalog, with questions, sources and freshness rules, is in `docs/FACETS.md` in the codesplain repository.
 
 **Treatment values:**
 - **recorded:** write it into `why/` as claims.

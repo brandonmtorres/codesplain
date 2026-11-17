@@ -1,9 +1,9 @@
 ---
-name: why-notes
+name: codesplain
 description: Use when someone asks how code works or why code exists, before changing, reviewing, refactoring or deleting code in a repository that has a why/ folder, and after making a significant change (new or changed exported function, route, job or CLI command; schema or migration; config, feature flag or environment variable; new dependency; changed test assertions) that future engineers or agents will need to understand.
 ---
 
-# why-notes
+# codesplain
 
 ## Overview
 

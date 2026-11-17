@@ -2,8 +2,8 @@
 
 ## What this project ships
 
-1. `skills/why-notes/SKILL.md` and `skills/why-notes/reference/*.md`: plain-text instructions for AI agents.
-2. `skills/why-notes/scripts/check_why.py`: an optional, read-only validator.
+1. `skills/codesplain/SKILL.md` and `skills/codesplain/reference/*.md`: plain-text instructions for AI agents.
+2. `skills/codesplain/scripts/check_why.py`: an optional, read-only validator.
 
 ## Guarantees for `check_why.py`
 
